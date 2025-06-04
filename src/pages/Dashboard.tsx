@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import DailyGoals from '../components/dashboard/DailyGoals';
+import WellnessTips from '../components/dashboard/WellnessTips';
+import ActivityStreak from '../components/dashboard/ActivityStreak';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -64,9 +67,9 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-teal-50 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Welcome Section */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 backdrop-blur-lg bg-white/90 border border-blue-50">
+        <div className="bg-white rounded-2xl shadow-xl p-8 backdrop-blur-lg bg-white/90 border border-blue-50">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-gradient-to-r from-teal-400 to-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-semibold shadow-lg">
               {user?.email?.[0].toUpperCase() || '👤'}
@@ -81,7 +84,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {wellnessStats.map((stat) => (
             <div key={stat.name} className="bg-white rounded-xl shadow-md p-6 transform transition-all duration-300 hover:scale-105">
               <div className={`w-12 h-12 mb-4 rounded-lg bg-gradient-to-r ${stat.color} flex items-center justify-center text-white text-xl shadow-lg`}>
@@ -91,8 +94,8 @@ const Dashboard = () => {
               <dd className="mt-1 text-3xl font-bold text-gray-900">
                 {stat.value}
                 <span className={`ml-2 text-sm font-medium ${stat.trend === 'up' ? 'text-green-600' :
-                    stat.trend === 'down' ? 'text-red-600' :
-                      'text-blue-600'
+                  stat.trend === 'down' ? 'text-red-600' :
+                    'text-blue-600'
                   }`}>
                   {stat.change}
                 </span>
@@ -101,56 +104,48 @@ const Dashboard = () => {
           ))}
         </div>
 
-        {/* Daily Quote */}
-        <div className="bg-gradient-to-r from-blue-500 to-teal-500 rounded-2xl shadow-xl p-8 mb-8 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-40 h-40 transform translate-x-16 -translate-y-16 bg-white/10 rounded-full"></div>
-          <div className="absolute bottom-0 left-0 w-32 h-32 transform -translate-x-16 translate-y-16 bg-white/10 rounded-full"></div>
-          <div className="relative">
-            <svg className="w-8 h-8 mx-auto mb-4 opacity-90" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-            </svg>
-            <p className="text-xl font-medium italic mb-2 text-center">{dailyQuotes[0].quote}</p>
-            <p className="text-sm opacity-90 text-center">― {dailyQuotes[0].author}</p>
+        {/* Activity Streak */}
+        <div className="grid grid-cols-1 gap-6">
+          <ActivityStreak />
+        </div>
+
+        {/* Widgets Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1">
+            <DailyGoals />
+          </div>
+          <div className="lg:col-span-1">
+            <WellnessTips />
+          </div>
+          <div className="lg:col-span-1 bg-white rounded-xl shadow-md p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Daily Inspiration</h3>
+            <div className="text-center py-4">
+              <blockquote className="text-lg text-gray-700 italic mb-4">
+                &ldquo;{dailyQuotes[0].quote}&rdquo;
+              </blockquote>
+              <cite className="text-gray-600">— {dailyQuotes[0].author}</cite>
+            </div>
           </div>
         </div>
 
         {/* Recommended Activities */}
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Recommended for You</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {recommendedActivities.map((activity) => (
-            <Link
-              key={activity.title}
-              to={activity.link}
-              className="bg-white rounded-xl shadow-md p-6 transition-all duration-300 hover:shadow-lg hover:scale-105 group"
-            >
-              <div className={`w-12 h-12 mb-4 rounded-lg bg-gradient-to-r ${activity.color} flex items-center justify-center text-2xl transform transition-transform group-hover:scale-110 shadow-lg`}>
-                {activity.icon}
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{activity.title}</h3>
-              <p className="text-gray-600">{activity.description}</p>
-            </Link>
-          ))}
-        </div>
-
-        {/* Progress Section */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Journey</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gradient-to-br from-green-50 to-teal-50 p-6 rounded-xl border border-green-100">
-              <h3 className="text-lg font-semibold text-green-800 mb-2">Streaks</h3>
-              <p className="text-3xl font-bold text-green-600">7 Days</p>
-              <p className="text-sm text-green-600 mt-1">Keep going strong!</p>
-            </div>
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
-              <h3 className="text-lg font-semibold text-purple-800 mb-2">Achievements</h3>
-              <p className="text-3xl font-bold text-purple-600">12</p>
-              <p className="text-sm text-purple-600 mt-1">Unlocked this month</p>
-            </div>
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
-              <h3 className="text-lg font-semibold text-blue-800 mb-2">Next Goal</h3>
-              <p className="text-3xl font-bold text-blue-600">2 Days</p>
-              <p className="text-sm text-blue-600 mt-1">Until 10-day streak</p>
-            </div>
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Recommended for You</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {recommendedActivities.map((activity) => (
+              <Link
+                key={activity.title}
+                to={activity.link}
+                className="block p-4 rounded-lg bg-gradient-to-r hover:scale-105 transition-transform duration-200"
+                style={{
+                  backgroundImage: `linear-gradient(to right, ${activity.color.split(' ')[1]}, ${activity.color.split(' ')[3]})`
+                }}
+              >
+                <div className="text-3xl mb-2">{activity.icon}</div>
+                <h4 className="text-white font-semibold mb-1">{activity.title}</h4>
+                <p className="text-white/80 text-sm">{activity.description}</p>
+              </Link>
+            ))}
           </div>
         </div>
       </div>

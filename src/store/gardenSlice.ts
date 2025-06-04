@@ -4,7 +4,7 @@ import { client } from '../services/api/client';
 // Define types for the client side
 interface GardenElement {
   id: number;
-  type: 'plant' | 'tree' | 'flower';
+  plantTypeId: string;
   name: string;
   description: string;
   plantedDate: string;
@@ -15,10 +15,12 @@ interface GardenElement {
     x: number;
     y: number;
   };
+  moodHistory: number[];
+  activityHistory: string[];
 }
 
 interface CreateGardenElementRequest {
-  type: 'plant' | 'tree' | 'flower';
+  plantTypeId: string;
   name: string;
   description: string;
   position: {

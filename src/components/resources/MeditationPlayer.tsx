@@ -16,6 +16,9 @@ const MeditationPlayer = ({ resource, onComplete, onClose }: MeditationPlayerPro
 
   useEffect(() => {
     return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
@@ -29,39 +32,38 @@ const MeditationPlayer = ({ resource, onComplete, onClose }: MeditationPlayerPro
   };
 
   const handlePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
-      } else {
-        audioRef.current.play();
-        intervalRef.current = setInterval(() => {
-          if (audioRef.current) {
-            setCurrentTime(audioRef.current.currentTime);
-            setProgress((audioRef.current.currentTime / audioRef.current.duration) * 100);
-          }
-        }, 1000);
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
       }
-      setIsPlaying(!isPlaying);
+    } else {
+      audioRef.current.play();
+      intervalRef.current = setInterval(() => {
+        if (audioRef.current) {
+          setCurrentTime(audioRef.current.currentTime);
+          setProgress((audioRef.current.currentTime / audioRef.current.duration) * 100);
+        }
+      }, 1000);
     }
+    setIsPlaying(!isPlaying);
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    if (audioRef.current) {
-      const time = (value * audioRef.current.duration) / 100;
-      audioRef.current.currentTime = time;
-      setProgress(value);
-    }
+    if (!audioRef.current) return;
+    const time = (parseInt(e.target.value) / 100) * audioRef.current.duration;
+    audioRef.current.currentTime = time;
+    setCurrentTime(time);
+    setProgress(parseInt(e.target.value));
   };
 
   const handleComplete = () => {
-    setIsPlaying(false);
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+    if (audioRef.current) {
+      audioRef.current.pause();
     }
+    setIsPlaying(false);
     onComplete();
   };
 

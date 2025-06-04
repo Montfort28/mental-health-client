@@ -3,6 +3,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import MoodTracker from '../components/garden/MoodTracker';
 import GardenVisualization from '../components/garden/GardenVisualization';
+import DailyChallenges from '../components/community/DailyChallenges';
+import MoodCalendar from '../components/garden/MoodCalendar';
 
 const achievementsList = [
   { id: 'streak-3', name: 'Growing Strong', description: '3-day mood tracking streak', icon: '🌱' },
@@ -106,19 +108,24 @@ const MindGarden = () => {
               <span className="text-4xl">🏆</span>
             </div>
           </div>
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Mood Tracking */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="p-6">
-              <MoodTracker />
-            </div>
+        </div>        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
+          {/* Mood Calendar */}
+          <div className="xl:col-span-1">
+            <MoodCalendar
+              entries={entries.map(entry => ({
+                ...entry,
+                date: new Date(entry.timestamp)
+              }))}
+              onDayClick={(date) => {
+                // TODO: Implement day click handler
+                console.log('Day clicked:', date);
+              }}
+            />
           </div>
 
           {/* Garden Visualization */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="xl:col-span-2 bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800">Your Garden</h2>
               <p className="text-gray-600 mb-4">
@@ -127,6 +134,13 @@ const MindGarden = () => {
               </p>
               <GardenVisualization />
             </div>
+          </div>
+        </div>
+
+        {/* Mood Tracking */}
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+          <div className="p-6">
+            <MoodTracker />
           </div>
         </div>
 
@@ -147,31 +161,35 @@ const MindGarden = () => {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Tips and Guidance */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-semibold mb-6 text-gray-800">Growing Tips</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-4 rounded-lg bg-green-50">
-              <h3 className="font-medium text-green-800 mb-2">Daily Check-ins</h3>
-              <p className="text-sm text-green-700">
-                Regular mood tracking helps your garden flourish. Try to log your feelings at the same time each day.
-              </p>
-            </div>
-            <div className="p-4 rounded-lg bg-blue-50">
-              <h3 className="font-medium text-blue-800 mb-2">Activity Impact</h3>
-              <p className="text-sm text-blue-700">
-                Notice which activities boost your mood. These insights help you cultivate better mental well-being.
-              </p>
-            </div>
-            <div className="p-4 rounded-lg bg-purple-50">
-              <h3 className="font-medium text-purple-800 mb-2">Growth Takes Time</h3>
-              <p className="text-sm text-purple-700">
-                Like real plants, emotional growth needs patience. Celebrate small progress and keep nurturing yourself.
-              </p>
+        </div>        {/* Tips and Community Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Tips and Guidance */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-semibold mb-6 text-gray-800">Growing Tips</h2>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="p-4 rounded-lg bg-green-50 transform hover:scale-[1.02] transition-all">
+                <h3 className="font-medium text-green-800 mb-2">Daily Check-ins</h3>
+                <p className="text-sm text-green-700">
+                  Regular mood tracking helps your garden flourish. Try to log your feelings at the same time each day.
+                </p>
+              </div>
+              <div className="p-4 rounded-lg bg-blue-50 transform hover:scale-[1.02] transition-all">
+                <h3 className="font-medium text-blue-800 mb-2">Activity Impact</h3>
+                <p className="text-sm text-blue-700">
+                  Notice which activities boost your mood. These insights help you cultivate better mental well-being.
+                </p>
+              </div>
+              <div className="p-4 rounded-lg bg-purple-50 transform hover:scale-[1.02] transition-all">
+                <h3 className="font-medium text-purple-800 mb-2">Growth Takes Time</h3>
+                <p className="text-sm text-purple-700">
+                  Like real plants, emotional growth needs patience. Celebrate small progress and keep nurturing yourself.
+                </p>
+              </div>
             </div>
           </div>
+
+          {/* Community Challenges */}
+          <DailyChallenges />
         </div>
       </div>
     </div>

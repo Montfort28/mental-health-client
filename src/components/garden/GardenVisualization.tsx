@@ -3,18 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { fetchGardenElements, updateGardenElement } from '../../store/gardenSlice';
 import type { GardenElement } from '../../types/garden';
-
-const plantTypes = {
-  flower: ['🌸', '🌹', '🌷', '🌺', '🌻', '🌼'],
-  tree: ['🌳', '🌲', '🎄', '🌴', '🪴'],
-  plant: ['🌿', '☘️', '🍀', '🌱', '🎋']
-};
-
-const plantMeanings = {
-  flower: 'represents joy and achievement',
-  tree: 'symbolizes strength and resilience',
-  plant: 'signifies growth and healing'
-};
+import { plantTypes } from './plantTypes';
 
 const weatherEffects = {
   rain: '🌧️',
@@ -67,10 +56,34 @@ const GardenVisualization = () => {
     const baseSize = 24;
     return Math.max(baseSize * (growthStage * 0.2), baseSize * 0.5);
   };
+  const getGrowthDescription = (element: GardenElement) => {
+    const plant = plantTypes[element.plantTypeId];
+    const growthPercent = (element.growthStage / 5) * 100;
 
-  const getRandomPlantEmoji = (type: keyof typeof plantTypes) => {
-    const options = plantTypes[type];
-    return options[Math.floor(Math.random() * options.length)];
+    if (growthPercent < 20) return 'Just planted';
+    if (growthPercent < 40) return 'Starting to grow';
+    if (growthPercent < 60) return 'Growing steadily';
+    if (growthPercent < 80) return 'Thriving';
+    return 'Fully bloomed';
+  };
+
+  const calculateGrowthBonus = (element: GardenElement) => {
+    const plant = plantTypes[element.plantTypeId];
+    let bonus = 1;
+
+    // Mood bonus
+    const recentMoods = element.moodHistory.slice(-3);
+    const matchingMoods = recentMoods.filter(mood => plant.associatedMoods?.includes(mood));
+    bonus += (matchingMoods.length * 0.1);
+
+    // Activity bonus
+    const recentActivities = element.activityHistory.slice(-3);
+    const matchingActivities = recentActivities.filter(activity =>
+      plant.associatedActivities?.includes(activity)
+    );
+    bonus += (matchingActivities.length * 0.15);
+
+    return bonus;
   };
 
   if (loading) {
@@ -83,8 +96,8 @@ const GardenVisualization = () => {
 
   return (
     <div className={`relative w-full h-[600px] rounded-lg overflow-hidden p-4 transition-colors duration-1000 ${isNight
-        ? 'bg-gradient-to-b from-indigo-900 via-purple-900 to-blue-900'
-        : 'bg-gradient-to-b from-blue-200 via-green-100 to-green-200'
+      ? 'bg-gradient-to-b from-indigo-900 via-purple-900 to-blue-900'
+      : 'bg-gradient-to-b from-blue-200 via-green-100 to-green-200'
       }`}>
       {/* Sky Effect */}
       <div className={`absolute top-0 left-0 right-0 h-32 transition-opacity duration-500 ${weather === 'rain' ? 'opacity-70' : 'opacity-100'
@@ -112,23 +125,22 @@ const GardenVisualization = () => {
             top: `${element.position.y}px`,
             fontSize: `${calculateSize(element.growthStage)}px`,
             transform: `translate(-50%, -50%)`,
-          }}
-          onClick={() => {
+          }} onClick={() => {
             if (element.healthStatus !== 'healthy') {
               handleWater(element.id);
             }
             setSelectedElement(element);
           }}
         >
-          {getRandomPlantEmoji(element.type)}
+          {plantTypes[element.plantTypeId].emoji}
 
           {/* Growth and Health Indicators */}
           <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 w-20">
             <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden shadow-inner">
               <div
                 className={`h-full transition-all duration-500 ${element.healthStatus === 'healthy' ? 'bg-green-500' :
-                    element.healthStatus === 'needs-attention' ? 'bg-yellow-500' :
-                      'bg-red-500'
+                  element.healthStatus === 'needs-attention' ? 'bg-yellow-500' :
+                    'bg-red-500'
                   }`}
                 style={{ width: `${(element.growthStage / 5) * 100}%` }}
               />
@@ -137,22 +149,37 @@ const GardenVisualization = () => {
 
           {/* Hover Info Card */}
           {selectedElement?.id === element.id && (
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 w-48 p-3 bg-white rounded-lg shadow-lg z-10 mb-2">
-              <h4 className="font-semibold text-sm text-gray-800">{element.name}</h4>
-              <p className="text-xs text-gray-600 mt-1">{plantMeanings[element.type]}</p>
-              <div className="text-xs text-gray-500 mt-2">
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 -translate-y-2 w-64 p-4 bg-white rounded-lg shadow-lg z-10 mb-2">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">{plantTypes[element.plantTypeId].emoji}</span>
+                <div>
+                  <h4 className="font-semibold text-sm text-gray-800">{element.name}</h4>
+                  <p className="text-xs text-gray-600">{plantTypes[element.plantTypeId].name}</p>
+                </div>
+              </div>
+              <p className="text-xs text-gray-600 mt-1">{plantTypes[element.plantTypeId].description}</p>
+              <div className="text-xs text-gray-500 mt-2 space-y-1">
                 <p>Planted: {new Date(element.plantedDate).toLocaleDateString()}</p>
-                <p>Growth: {element.growthStage}/5</p>
+                <p>Growth Stage: {getGrowthDescription(element)}</p>
+                <div className="flex items-center gap-1">
+                  <p>Growth Rate:</p>
+                  <div className="flex-1 h-1.5 bg-gray-100 rounded-full">
+                    <div
+                      className="h-full bg-green-500 rounded-full"
+                      style={{ width: `${calculateGrowthBonus(element) * 100}%` }}
+                    />
+                  </div>
+                </div>
                 <p className={`${element.healthStatus === 'healthy' ? 'text-green-500' :
-                    element.healthStatus === 'needs-attention' ? 'text-yellow-500' :
-                      'text-red-500'
+                  element.healthStatus === 'needs-attention' ? 'text-yellow-500' :
+                    'text-red-500'
                   }`}>
                   Status: {element.healthStatus.replace('-', ' ')}
                 </p>
               </div>
               {element.healthStatus !== 'healthy' && (
                 <button
-                  className="mt-2 w-full px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
+                  className="mt-3 w-full px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-[1.02] shadow-md"
                   onClick={() => handleWater(element.id)}
                 >
                   Water Plant
@@ -161,17 +188,39 @@ const GardenVisualization = () => {
             </div>
           )}
         </div>
-      ))}
-
-      {/* Empty Garden Message */}
+      ))}      {/* Empty Garden Message */}
       {elements.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center p-6 bg-white/90 rounded-lg shadow-lg max-w-md">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">Welcome to Your Mind Garden!</h3>
-            <p className="text-gray-600">
-              This is your personal space for growth and reflection. Track your moods and watch your garden flourish with each entry.
-              Each plant represents a moment in your journey, growing stronger as you maintain your mental well-being.
+          <div className="text-center p-8 bg-white/95 rounded-xl shadow-xl max-w-lg">
+            <div className="flex justify-center space-x-4 mb-6">
+              {Object.values(plantTypes).slice(0, 3).map(plant => (
+                <div key={plant.id} className="text-4xl animate-bounce" style={{ animationDelay: Math.random() + 's' }}>
+                  {plant.emoji}
+                </div>
+              ))}
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Welcome to Your Mind Garden!</h3>
+            <p className="text-gray-600 mb-6">
+              This is your personal space for emotional growth and reflection. Each plant represents different aspects of your mental well-being journey.
             </p>
+            <div className="grid grid-cols-2 gap-4 text-left">
+              <div className="p-3 bg-green-50 rounded-lg">
+                <h4 className="font-medium text-green-800 mb-1">🌱 Growth</h4>
+                <p className="text-sm text-green-600">Plants grow based on your mood patterns and self-care activities</p>
+              </div>
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <h4 className="font-medium text-blue-800 mb-1">💧 Care</h4>
+                <p className="text-sm text-blue-600">Nurture your garden through mindfulness and positive activities</p>
+              </div>
+              <div className="p-3 bg-purple-50 rounded-lg">
+                <h4 className="font-medium text-purple-800 mb-1">🎯 Goals</h4>
+                <p className="text-sm text-purple-600">Set emotional well-being goals and watch your garden thrive</p>
+              </div>
+              <div className="p-3 bg-yellow-50 rounded-lg">
+                <h4 className="font-medium text-yellow-800 mb-1">✨ Achievements</h4>
+                <p className="text-sm text-yellow-600">Unlock new plants and features as you progress</p>
+              </div>
+            </div>
           </div>
         </div>
       )}
