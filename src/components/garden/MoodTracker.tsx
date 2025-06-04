@@ -53,7 +53,7 @@ const MoodTracker = () => {
 
     // Create a garden element based on mood
     const gardenElement: CreateGardenElementRequest = {
-      type: mood >= 7 ? 'flower' : mood >= 4 ? 'plant' : 'tree',
+      plantTypeId: mood >= 7 ? 'joy-flower' : mood >= 4 ? 'peace-lily' : 'healing-herb',
       name: `${moodEmojis[mood as keyof typeof moodEmojis].label} Day`,
       description: notes || `A moment of ${moodEmojis[mood as keyof typeof moodEmojis].label.toLowerCase()} reflection`,
       position: {
@@ -131,8 +131,8 @@ const MoodTracker = () => {
             key={value}
             onClick={() => setSelectedMood(parseInt(value))}
             className={`relative group flex flex-col items-center justify-center p-3 rounded-lg transition-all duration-200 transform hover:scale-105 hover:-translate-y-1 ${selectedMood === parseInt(value)
-                ? 'ring-2 ring-blue-500 ring-offset-2'
-                : ''
+              ? 'ring-2 ring-blue-500 ring-offset-2'
+              : ''
               } bg-gradient-to-br ${color} text-white shadow-md`}
           >
             <span className="text-2xl mb-1">{emoji}</span>
@@ -157,8 +157,8 @@ const MoodTracker = () => {
                   : [...prev, activity.name]
               )}
               className={`flex items-center justify-center p-2 rounded-lg border-2 transition-all duration-200 ${selectedActivities.includes(activity.name)
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-200 hover:border-blue-200 hover:bg-blue-50'
+                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                : 'border-gray-200 hover:border-blue-200 hover:bg-blue-50'
                 }`}
             >
               <span className="text-xl mr-2">{activity.emoji}</span>
@@ -195,8 +195,8 @@ const MoodTracker = () => {
         }}
         disabled={selectedMood === null}
         className={`w-full py-3 px-4 rounded-lg text-white font-medium transition-all duration-200 transform hover:scale-[1.02] ${selectedMood !== null
-            ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg'
-            : 'bg-gray-400 cursor-not-allowed'
+          ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg'
+          : 'bg-gray-400 cursor-not-allowed'
           }`}
       >
         Save Entry & Plant Growth

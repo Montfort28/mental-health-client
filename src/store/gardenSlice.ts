@@ -4,7 +4,7 @@ import { client } from '../services/api/client';
 // Define types for the client side
 interface GardenElement {
   id: number;
-  type: 'plant' | 'tree' | 'flower';
+  plantTypeId: string;
   name: string;
   description: string;
   plantedDate: string;
@@ -15,10 +15,12 @@ interface GardenElement {
     x: number;
     y: number;
   };
+  moodHistory: number[];
+  activityHistory: string[];
 }
 
 interface CreateGardenElementRequest {
-  type: 'plant' | 'tree' | 'flower';
+  plantTypeId: string;
   name: string;
   description: string;
   position: {
@@ -59,8 +61,7 @@ export const fetchGardenElements = createAsyncThunk<GardenElement[], void>(
 );
 
 export const addGardenElement = createAsyncThunk<GardenElement, CreateGardenElementRequest>(
-  'garden/addElement',
-  async (element) => {
+  'garden/addElement', async (element) => {
     const response = await client.post<GardenElement>('/api/garden', element);
     return response.data;
   }
@@ -70,8 +71,7 @@ export const updateGardenElement = createAsyncThunk<
   GardenElement,
   { id: number; updates: UpdateGardenElementRequest }
 >(
-  'garden/updateElement',
-  async ({ id, updates }) => {
+  'garden/updateElement', async ({ id, updates }) => {
     const response = await client.patch<GardenElement>(`/api/garden/${id}`, updates);
     return response.data;
   }

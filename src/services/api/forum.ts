@@ -3,14 +3,14 @@ import { ForumPost, ForumComment, CreatePostDto, CreateCommentDto } from '../../
 
 export class ForumService {
     async getPosts(categoryId?: number): Promise<ForumPost[]> {
-        const response = await client.get<ForumPost[]>('/forum/posts', {
+        const response = await client.get<ForumPost[]>('/api/forum/posts', {
             params: { categoryId }
         });
         return response.data;
     }
 
     async createPost(userId: number, postData: CreatePostDto): Promise<ForumPost> {
-        const response = await client.post<ForumPost>('/forum/posts', {
+        const response = await client.post<ForumPost>('/api/forum/posts', {
             ...postData,
             userId
         });
@@ -18,7 +18,7 @@ export class ForumService {
     }
 
     async addComment(userId: number, postId: number, commentData: CreateCommentDto): Promise<ForumComment> {
-        const response = await client.post<ForumComment>(`/forum/posts/${postId}/comments`, {
+        const response = await client.post<ForumComment>(`/api/forum/posts/${postId}/comments`, {
             ...commentData,
             userId
         });

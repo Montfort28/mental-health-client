@@ -11,7 +11,7 @@ interface ApiResponse<T> {
   data: T;
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
 export const client = axios.create({
   baseURL: API_BASE_URL,
@@ -23,28 +23,16 @@ export const client = axios.create({
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem('auth_token');
   if (token) {
-    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-client.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token');
-      window.dispatchEvent(new Event('auth:logout'));
-    }
-    return Promise.reject(error);
-  }
-);
-
 const createApiError = (error: unknown): ApiError => {
   interface ErrorWithResponse {
     response?: {
       status: number;
-      data: unknown
+      data: unknown;
     };
     request?: unknown;
     message: string;
@@ -86,7 +74,7 @@ client.interceptors.response.use(
     switch (apiError.status) {
       case 401:
         // Handle unauthorized access
-        localStorage.removeItem('token');
+        localStorage.removeItem('auth_token');
         window.dispatchEvent(new CustomEvent('auth:logout'));
         window.location.href = '/login';
         break;

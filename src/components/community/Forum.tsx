@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ForumPost, CreatePostDto } from '../../types/forum';
 import { ForumService } from '../../services/api/forum';
 
@@ -8,20 +8,20 @@ const ForumComponent: React.FC = () => {
   const [content, setContent] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>();
-  const forumService = new ForumService();
+  const forumService = React.useMemo(() => new ForumService(), []);
 
-  useEffect(() => {
-    fetchPosts();
-  }, [selectedCategory]);
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       const fetchedPosts = await forumService.getPosts(selectedCategory);
       setPosts(fetchedPosts);
     } catch (error) {
       console.error('Error fetching posts:', error);
     }
-  };
+  }, [selectedCategory, forumService]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

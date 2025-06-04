@@ -1,6 +1,8 @@
+import { PlantType } from '../components/garden/plantTypes';
+
 export interface GardenElement {
   id: number;
-  type: 'plant' | 'tree' | 'flower';
+  plantTypeId: string;
   name: string;
   description: string;
   plantedDate: string;
@@ -11,10 +13,12 @@ export interface GardenElement {
     x: number;
     y: number;
   };
+  moodHistory: number[];
+  activityHistory: string[];
 }
 
 export interface CreateGardenElementRequest {
-  type: 'plant' | 'tree' | 'flower';
+  plantTypeId: string;
   name: string;
   description: string;
   position: {
@@ -32,4 +36,6 @@ export interface UpdateGardenElementRequest {
     x: number;
     y: number;
   };
+  moodHistory?: number[];
+  activityHistory?: string[];
 }
